@@ -79,7 +79,7 @@ except (FileNotFoundError):
         sot[4+i] = 0
 except (NameError, ValueError, IndexError):
     print ("File TrNuStatistics.txt is corrupted. Statistics are set to default. ")
-    for tryi in range(3):
+    for i in range(3):
         sot[4+i] = 0
 if (sot[4] < 0) or (sot[5] < 0) or (sot[6] < 0):
     print ("File TrNuStatistics.txt is corrupted. Statistics are set to default. ")
