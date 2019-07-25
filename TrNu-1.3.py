@@ -2,20 +2,21 @@ from random import randint as rand
 
 post = [1, 0]
 quiting = False
-sot = ["сложение", "вычитание", "макс. сумма", "way", "прав.отв", "не прав. отв", "пропущ."]
+sot = ["addition ", "subtraction", "max sum", "way", "correct", "incorrect", "skipped"]
 alright = False
 saving = [True, False]
 
-print ("Начало работы программы...")
-print ("""\nПрограмма поддерживает управление пользователем.
-В поле для ответа введите ответ на задачу или одну из существующих команд:
-\"Пропустить" - если пример слишком трудный, его можно пропустить (учитывается в статистике);
-\"Настройки\" - возможность изменить максимальную сумму;
-\"Статус\" - отображение настроек и количество правильно решённых примеров;
-\"Стереть прогресс\" - удаление статистики решённых примеров;
-\"Включить/выключить сложение\";
-\"Включить/выключить вычитание\";
-\"Выйти\" - завершить работу программы. \n""")
+print ("""Start of program...
+
+Train Nums supports user commands. You can enter command when user input is prompted: 
+
+"skip" - skip difficult problems (counts by statistics);
+"settings" - change difficulty;
+"status" - show settings and your statistics;
+"delete progress" - clear your statistics and start fresh;
+"turn on/off addition";
+"turn on/off subtraction";
+"exit" - quit Train Nums. \n""")
 
 try:
     blok = open ("TrNuSettings.txt", "r")
@@ -28,7 +29,7 @@ try:
             sot[i] = int (allsod[i])
     blok.close()
 except (NameError, FileNotFoundError, ValueError, IndexError):
-    print ("Ошибка при воспроизведении настроек")
+    print ("File TrNuSettings.txt not found... ")
     
 if (((sot[0] == 1) or (sot[0] == 0)) and
     ((sot[1] == 1) or (sot[1] == 0)) and
@@ -39,16 +40,17 @@ if (((sot[0] == 1) or (sot[0] == 0)) and
         post[1] = sot[1]
         mol_1 = sot[2]
         way = sot[3]
+
 if alright == False:
-    print ("Файл отсутствует или деформирован, установить дефолтные настройки? ")
-    anss = input ("Ответ пользователя: ")
+    print ("File TrNuSettings.txt is corrupted. Set settings to default?")
+    anss = input ("User input (y/n): ")
     anss = anss.lower()
-    if anss == ('да'):
+    if (anss == ('yes')) or (anss == ('y')):
         blok = open ("TrNuSettings.txt", "w")
-        blok.write (str(1) + "\n" +
-                    str(0) + "\n" +
-                    str(25) + "\n" +
-                    str(1))
+        blok.write ("1" + "\n" +
+                    "0" + "\n" +
+                    "25" + "\n" +
+                    "1")
         blok.close()
         post[0] = int (1)
         post[1] = int (0)
@@ -70,23 +72,23 @@ try:
     res.close()
 except (FileNotFoundError):
     res = open ("TrNuStatistics.txt", "w")
-    res.write (str(0) + "\n" + str(0) + "\n" + str(0))
+    res.write ("0" + "\n" + "0" + "\n" + "0")
     res.close()
-    print ("Файл с сохранённым прогрессом отсутствует. Создан новый")
+    print ("File TrNuStatistics.txt not found. New file was created. ")
     for i in range(3):
         sot[4+i] = 0
 except (NameError, ValueError, IndexError):
-    print ("Файл с сохранённым прогрессом не подлежит чтению, прогресс обнулён")
-    for i in range(3):
+    print ("File TrNuStatistics.txt is corrupted. Statistics are set to default. ")
+    for tryi in range(3):
         sot[4+i] = 0
 if (sot[4] < 0) or (sot[5] < 0) or (sot[6] < 0):
-    print ("Файл с сохранённым прогрессом деформирован, прогресс обнулён")
+    print ("File TrNuStatistics.txt is corrupted. Statistics are set to default. ")
     sot[4] = 0
     sot[5] = 0
     sot[6] = 0   
 
 
-#функции
+#FUNCTIONS
 def isint(value):
     try:
         int(value)
@@ -97,10 +99,10 @@ def isint(value):
 def settings (x):
     while True:
         try:
-            x = int (input('\n' + "Введите новое значение максимальной суммы: "))
+            x = int (input('\n' + "Enter new max sum: "))
             break
         except ValueError:
-            print ("Требуется ввести число, повторите попытку")
+            print ("Number is required, try again... ")
     return x
 
 while True:
@@ -111,7 +113,7 @@ while True:
     b = s - a
     if (post[0] == 0) and (post[1] == 0):
         way = 3
-        print ("\nСложение и вычитание выключено, примеры не генерируются")
+        print ('\n' + "Addition and subtraction are turned off, generation is stopped... ")
     if (post[0] == 1) and (post[1] == 1):
         way = rand(1, 2)
     if (way == 1):
@@ -126,30 +128,30 @@ while True:
     while True:
         if quiting == True:
             break
-        ans = (input("Ответ пользователя: "))
+        ans = (input("User input: "))
         try:
             ans = int (ans)
         except ValueError:
             ans = str (ans.lower())
         if (way == 1) and (ans == (a+b)):
-            print ("Верно!")
+            print ("Correct!")
             sot[4] += 1
             break
         elif (way == 2) and (ans == (s-b)):
-            print ("Верно!")
+            print ("Correct!")
             sot[4] += 1
             break
         elif (isint(ans)):
             sot[5] += 1
-            print ("Не верно, попробуй снова\n" + "\n" + prim)
+            print ("Incorrect, try again\n" + "\n" + prim)
 
-        elif ans == ("выйти"):
+        elif ans == ("exit"):
             while True:
                 if saving[0] == True:
-                    print ("\nСохранить настройки генерации перед выходом?")
-                    wha1 = (input ("Ответ пользователя: "))
+                    print ("\n" + "Save settings before leaving?")
+                    wha1 = (input ("User input (y/n): "))
                     wha1 = (wha1.lower())
-                    if wha1 == ("да"):
+                    if (wha1 == ("yes")) or (wha1 == ('y')):
                         saving[0] = False
                         saving[1] = True
                         blok = open ("TrNuSettings.txt", "w")
@@ -158,16 +160,16 @@ while True:
                                     str(mol_1) + "\n" +
                                     str (way))
                         blok.close()
-                    elif wha1 == ("нет"):
+                    elif (wha1 == ("n")) or (wha1 == ("no")):
                         saving[0] = False
                         saving[1] = True
                     else:
-                        print ("Неверный синтаксис, повторите попытку")
+                        print ("Wrong input. Try again... ")
                 if saving [1] == True:
-                    print ("\nСохранить прогресс правильно решённых примеров?")
-                    wha2 = (input ("Ответ пользователя: "))
+                    print ("\n" + "Save statistics?")
+                    wha2 = (input ("User input (y/n): "))
                     wha2 = (wha2.lower())
-                    if wha2 == ("да"):
+                    if (wha2 == ("yes")) or (wha2 == ('y')):
                         res = open ("TrNuStatistics.txt", "w")
                         res.write (str(sot[4]) + "\n" +
                                    str(sot[5]) + "\n" +
@@ -175,69 +177,69 @@ while True:
                         res.close()
                         quiting = True
                         break
-                    elif wha2 == ("нет"):
+                    elif wha2 == ("no") or (wha2 == ("n")):
                         quiting = True
                         break        
                     else:
-                        print ("Неверный синтаксис, повторите попытку")
+                        print ("Wrong input. Try again... ")
 
-        elif ans == ("настройки"):
+        elif ans == ("settings"):
             mol_1 = settings (mol_1)
             break
 
-        elif ans == ("пропустить"):
-            print ("Пример пропущен. Действие учтено статистикой")
+        elif ans == ("skip"):
+            print ("We will count that. Next problem... ")
             sot[6] += 1
             break
     
-        elif ans == ("включить вычитание"):
+        elif ans == ("turn on subtraction"):
             if way == 3:
                 way = 2
             post[1] = 1
             break
 
-        elif ans == ("выключить вычитание"):
+        elif ans == ("turn off subtraction"):
             way = 1
             post[1] = 0
             break
 
-        elif ans == ("включить сложение"):
+        elif ans == ("turn on addition"):
             if way == 3:
                 way = 1
             post[0] = 1
             break
 
-        elif ans == ("выключить сложение"):
+        elif ans == ("turn off addition"):
             way = 2
             post[0] = 0
             break
 
-        elif ans == ("стереть прогресс"):
+        elif ans == ("delete progress"):
             sot[4] = 0
             sot[5] = 0
             sot[6] = 0
-            print ("Прогресс был успешно обнулён")
+            print ("Your statistics were succesfully cleared... ")
             break
         
-        elif ans == ("статус"):
-            print ("Максимальная сумма: ", mol_1)
+        elif ans == ("status"): 
+            print ("Max sum: ", mol_1)
             if post[0] == 1:
-                print ("Сложение включено")
+                print ("Addition is turned on")
             elif post[0] == 0:
-                print ("Сложение выключено")
+                print ("Addition is turned off")
             if post[1] == 1:
-                print ("Вычетание включено")
+                print ("Subtraction is turned on")
             elif post[1] == 0:
-                print ("Вычитание выключено")
-            print ("Всего решённых примеров: {0}, из них правильно: {1}, неправильно: {2}, пропущено: {3}".format(sot[4]+sot[5]+sot[6], sot[4], sot[5], sot[6]))
+                print ("Subtraction is turned off")
+            print ("Solved problems total: {0}; {1} of them correctly, {2} incorrectly and {3} were skipped".format(sot[4]+sot[5]+sot[6], sot[4], sot[5], sot[6]))
             try:
-                print ("Процентное соотношение правильно решённых примеров: {0}%".format(round(sot[4]/(sot[4]+sot[5]+sot[6])*100, 2)))
+                print ("{0}% of all problems are solved correctly".format(round(sot[4]/(sot[4]+sot[5]+sot[6])*100, 2)))
             except (ZeroDivisionError):
-                print ("Статистика правильно решённых примеров недоступна")
-            print ("\nОбратно к задаче: ")
+                print ("Statistics are not available")
+            print ("\n" + "Back to the problem... ")
             
 
         else:
-            print ("Несуществующий запрос, повторите попытку")
+            print ("Unknown command, try again... ")
 
-input ("Конец программы, нажмите Enter для выхода")
+input ("End of program, press Enter to exit... ")
