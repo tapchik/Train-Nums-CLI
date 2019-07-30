@@ -1,5 +1,5 @@
-from random import randint as randint
-from random import choice as choice
+from random import randint
+from random import choice
 import json
 
 #INITIALIZATION
@@ -12,14 +12,14 @@ data = {"addition": True,
         "incorrect": 0,
         "skipped": 0}
 solved = True
-quit = False
+quitting = False
 
 #SCRIPTS
 
-def script_help ():
-    print ("""Start of program...
+def script_help():
+    print('\n' + """Start of program...
 
-Train Nums supports user commands. You can enter command when user input is prompted:
+You can enter listed commands when user input is prompted:
 
 "skip" - skip difficult problems (counts by statistics);
 "settings" - change difficulty;
@@ -29,44 +29,50 @@ Train Nums supports user commands. You can enter command when user input is prom
 "turn on/off subtraction";
 "exit" - quit Train Nums. """)
 
-def script_settings ():
+def script_settings():
+
+    print('\n' + "Current max sum is: " + str(data["max sum"]))
     while True:
         try:
-          x = int (input('\n' + "Enter new max sum: "))
-          return (x)
+          x = int (input("Enter new max sum: "))
+          return (abs(x))
         except ValueError:
-          print ("Number is required, try again... ")
+          print ('\n' + "Number is required, try again... " + '\n')
 
-def script_show_status ():
+def script_show_status():
+    #displays settings and statistics
 
-  print ('\n' + "Max sum:", data["max sum"])
+    print('\n' + "Max sum" + '     : ' + str(data["max sum"]))
 
-  if data["addition"] == True:
-    print ("Addition is turned on")
-  else:
-    print ("Addition is turned off")
+    print("Addition", end='    : ')
+    if data["addition"] == True:
+        print("on")
+    else:
+        print("off")
 
-  if data["subtraction"] == True:
-    print ("Subtraction is turned on")
-  else:
-    print ("Subtraction is turned off")
+    print("Subtraction", end=' : ')
+    if data["subtraction"] == True:
+        print("on")
+    else:
+        print("off")
 
-  total = data["correct"] + data["incorrect"] + data["skipped"]
+    total = data["correct"] + data["incorrect"] + data["skipped"]
 
-  print ("Solved problems total: {0}; ".format(total), end='')
-  print ("{0} of them correctly, ".format(data["correct"]), end='')
-  print ("{0} incorrectly ".format(data["incorrect"]), end='')
-  print ("and {0} were skipped".format(data["skipped"]))
+    print(' ')
+    print("Correctly solved" + '      : ' + str(data["correct"]))
+    print("Mistakes were made" + '    : ' + str(data["incorrect"]))
+    print("Skipped problems" + '      : ' + str(data["skipped"]))
+    print("Solved problems total" + ' : ' + str(total))
 
-  try:
-    print ("{0}% of all problems are solved correctly.".format(round(data["correct"]/total*100), 2))
-  except ZeroDivisionError:
-    print ("Further statistics are not available")
-    print ("\n" + "Back to the problem... ")
+    try:
+        print("{0}% of all problems are solved correctly".format(round(data["correct"]/total*100), 2))
+    except ZeroDivisionError:
+        print("Further statistics are not available")
+        print('\n' + "Back to the problem... ")
 
 #FUNCTIONS
 
-def file_read ():
+def file_read():
 
   try:
     with open ("TrNuSettings.json", "r") as file:
@@ -96,11 +102,11 @@ def file_read ():
     print ("Program is set to default settings and your progress was nullified. " + '\n')
     return False
 
-def file_save ():
+def file_save():
   with open ("TrNuSettings.json", "w") as file:
     json.dump (data, file, indent = 4)
 
-def set_to_default ():
+def set_to_default():
 
   data = {"addition": True,
           "subtraction": False,
@@ -110,7 +116,7 @@ def set_to_default ():
           "incorrect": 0,
           "skipped": 0}
 
-def choose_operation ():
+def choose_operation():
 
   options = []
 
@@ -121,10 +127,9 @@ def choose_operation ():
 
   if options != []:
     return choice(options)
-  else:
-    return None
+  return None
 
-def generate_problem (operation):
+def generate_problem(operation):
 
     problem = str()
 
@@ -172,7 +177,7 @@ script_help()
 
 while True:
 
-    if quit == True:
+    if quitting == True:
         break
 
     if solved == True:
@@ -181,16 +186,20 @@ while True:
         del operation
         solved = False
 
-    print ('\n' + data["problem"])
+    if data["problem"] is not None:
+        print ('\n' + data["problem"])
+    else:
+        print ('\n' + "Generation is turned off. Choose an operation. ")
+        solved = True
 
     user = input("User input: ")
 
     try:
         user = int(user)
     except ValueError:
-        user = str (user.lower())
+        user = str(user.lower())
 
-    if user == data["answer"]:
+    if (user == data["answer"]):
         print ("Correct!")
         data["correct"] += 1
         solved = True
@@ -199,9 +208,9 @@ while True:
         print ('\n' + "Incorrect, try again")
         data["incorrect"] += 1
 
-    elif user == "exit":
+    elif user in ["exit", "quit"]:
         file_save()
-        quit = True
+        quitting = True
 
     elif user == "settings":
         data["max sum"] = script_settings()
@@ -252,6 +261,7 @@ while True:
 
     elif user == "status":
         script_show_status()
+        print('\n' + "Back to the math problem... ")
 
     elif user == "help":
         print (' ')
