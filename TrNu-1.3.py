@@ -1,14 +1,30 @@
-from random import randint as rand
+from random import randint as randint
+from random import choice as choice
+import json
+import random
 
-post = [1, 0]
-quiting = False
-sot = ["addition ", "subtraction", "max sum", "way", "correct", "incorrect", "skipped"]
-alright = False
-saving = [True, False]
+#INITIALIZATION
+data = {"addition": True,
+        "subtraction": False,
+        "max sum": 25,
+        "problem": "0 + 0",
+        "answer": 0,
+        "correct": 0,
+        "incorrect": 0,
+        "skipped": 0}
 
-print ("""Start of program...
+solved = True
+quit = False
+# Detects change in operator again
+# I am not seeing the full picture here
+delta_operator = False
 
-Train Nums supports user commands. You can enter command when user input is prompted: 
+#SCRIPTS
+
+def script_help ():
+    print ("""Start of program...
+
+Train Nums supports user commands. You can enter command when user input is prompted:
 
 "skip" - skip difficult problems (counts by statistics);
 "settings" - change difficulty;
@@ -16,230 +32,258 @@ Train Nums supports user commands. You can enter command when user input is prom
 "delete progress" - clear your statistics and start fresh;
 "turn on/off addition";
 "turn on/off subtraction";
-"exit" - quit Train Nums. \n""")
+"exit" - quit Train Nums. """)
 
-try:
-    blok = open ("TrNuSettings.txt", "r")
-    allsod = (blok.readlines())
-    for i in range(4):
-        if allsod[i].endswith ("\n"):
-            ling = len(allsod[i])
-            sot[i] = int ((allsod[i])[:ling-1])
-        else:
-            sot[i] = int (allsod[i])
-    blok.close()
-except (NameError, FileNotFoundError, ValueError, IndexError):
-    print ("File TrNuSettings.txt not found... ")
+def script_settings ():
+    while True:
+        try:
+          x = int (input('\n' + "Enter new max sum: "))
+          return (x)
+        except ValueError:
+          print ("Number is required, try again... ")
+
+def script_show_status ():
+
+  print ('\n' + "Max sum:", data["max sum"])
+
+  if data["addition"] == True:
+    print ("Addition is turned on")
+  else:
+    print ("Addition is turned off")
+
+
+
+  if data["subtraction"] == True:
+    print ("Subtraction is turned on")
+  else:
+    print ("Subtraction is turned off")
     
-if (((sot[0] == 1) or (sot[0] == 0)) and
-    ((sot[1] == 1) or (sot[1] == 0)) and
-    ((sot[3] == 1) or (sot[3] == 2) or (sot[3] == 3)) and
-    (sot[2] > 0)):
-        alright = True
-        post[0] = sot[0]
-        post[1] = sot[1]
-        mol_1 = sot[2]
-        way = sot[3]
+# I wanted to use non-binary variable but then
+  # it would be confusing so, changing the value to True
+  # solves our problem
+  
+  if (data["subtraction"] is True) ^ (data["addition"] is True):
+    #solved = True
+    operation = choose_operation()
+    data["problem"], data["answer"] = generate_problem(operation)
+    del operation
+    solved = False
 
-if alright == False:
-    print ("File TrNuSettings.txt is corrupted. Set settings to default?")
-    anss = input ("User input (y/n): ")
-    anss = anss.lower()
-    if (anss == ('yes')) or (anss == ('y')):
-        blok = open ("TrNuSettings.txt", "w")
-        blok.write ("1" + "\n" +
-                    "0" + "\n" +
-                    "25" + "\n" +
-                    "1")
-        blok.close()
-        post[0] = int (1)
-        post[1] = int (0)
-        mol_1 = int (25)
-        way = int (1)
-    else:
-        quiting = True
+  if (data["subtraction"] is True) ^ (data["addition"] is True):
+      
+      total = data["correct"] + data["incorrect"] + data["skipped"]
 
-        
-try:
-    res = open ("TrNuStatistics.txt", "r")
-    stats = (res.readlines())
-    for i in range(3):
-        if stats[i].endswith ("\n"):
-            ling = len(stats[i])
-            sot[4+i] = int ((stats[i])[:ling-1])
-        else:
-            sot[4+i] = int (stats[i])
-    res.close()
-except (FileNotFoundError):
-    res = open ("TrNuStatistics.txt", "w")
-    res.write ("0" + "\n" + "0" + "\n" + "0")
-    res.close()
-    print ("File TrNuStatistics.txt not found. New file was created. ")
-    for i in range(3):
-        sot[4+i] = 0
-except (NameError, ValueError, IndexError):
-    print ("File TrNuStatistics.txt is corrupted. Statistics are set to default. ")
-    for i in range(3):
-        sot[4+i] = 0
-if (sot[4] < 0) or (sot[5] < 0) or (sot[6] < 0):
-    print ("File TrNuStatistics.txt is corrupted. Statistics are set to default. ")
-    sot[4] = 0
-    sot[5] = 0
-    sot[6] = 0   
+  print ("Solved problems total: {0}; ".format(total), end='')
+  print ("{0} of them correctly, ".format(data["correct"]), end='')
+  print ("{0} incorrectly ".format(data["incorrect"]), end='')
+  print ("and {0} were skipped".format(data["skipped"]))
 
+  try:
+    print ("{0}% of all problems are solved correctly.".format(round(data["correct"]/total*100), 2))
+  except ZeroDivisionError:
+    print ("Further statistics are not available")
+    print ("\n" + "Back to the problem... ")
 
 #FUNCTIONS
-def isint(value):
-    try:
-        int(value)
-        return True
-    except ValueError:
-        return False
 
-def settings (x):
-    while True:
-        try:
-            x = int (input('\n' + "Enter new max sum: "))
-            break
-        except ValueError:
-            print ("Number is required, try again... ")
-    return x
+def file_read ():
+
+  try:
+    with open ("TrNuSettings.json", "r") as file:
+      x = json.load(file)
+
+      data["addition"] = x["addition"]
+      data["subtraction"] = x["subtraction"]
+      data["max sum"] = x["max sum"]
+      data["problem"] = x["problem"]
+      data["answer"] = x["answer"]
+      data["correct"] = x["correct"]
+      data["incorrect"] = x["incorrect"]
+      data["skipped"] = x["skipped"]
+
+      if (data["addition"] in [True, False]) and (data["subtraction"] in [True, False]) and (data["correct"] >= 0) and (data["incorrect"] >= 0) and (data["skipped"] >= 0) and (data["answer"] >= 0) and (data["max sum"] > 0):
+            return True
+      else:
+          raise KeyError()
+
+  except FileNotFoundError:
+    print ("This is a first startup of Train Nums on this computer. ")
+    print ("We love seeing new users! " + '\n')
+    return False
+
+  except KeyError:
+    print ("Settings file must be currupted. Did you try to cheat? ")
+    print ("Program is set to default settings and your progress was nullified. " + '\n')
+    return False
+
+def file_save ():
+  with open ("TrNuSettings.json", "w") as file:
+    json.dump (data, file, indent = 4)
+
+def set_to_default ():
+
+  data = {"addition": True,
+          "subtraction": False,
+          "max sum": 25,
+          "current": [0, "+", 0, 0],
+          "correct": 0,
+          "incorrect": 0,
+          "skipped": 0}
+
+def choose_operation ():
+
+  options = []
+
+  if data["addition"] == True:
+    options.append("+")
+  if data["subtraction"] == True:
+    options.append("-")
+
+  if options != []:
+    return choice(options)
+  return None
+
+def generate_problem (operation):
+
+    problem = str()
+
+    #example
+    # 123     '+'      456  =  579
+    #left, operation, right, answer
+
+    if operation == '+':
+
+        answer = randint (1, data["max sum"])
+        left = randint (1, answer)
+        right = answer - left
+
+        problem += str(left)
+        problem += ' ' + operation + ' '
+        problem += str(right)
+
+    elif operation == '-':
+
+        left = randint (1, data["max sum"])
+        right = randint (1, left)
+        answer = left - right
+
+        problem += str(left)
+        problem += ' ' + operation + ' '
+        problem += str(right)
+
+    elif operation == None:
+        # This means two things either the program should exit
+        # or select randomly an operator
+        problem, answer = generate_problem (random.choice(['+', '-']))
+        #problem = None
+        #answer = None
+
+    return (problem, answer)
+
+#START OF PROGRAM
+
+if file_read() == True:
+    solved = False
+    file_read()
+else:
+    solved = True
+    set_to_default()
+
+script_help()
 
 while True:
-    if quiting == True:
-        break    
-    s = rand (1, mol_1)
-    a = rand (1, s)
-    b = s - a
-    if (post[0] == 0) and (post[1] == 0):
-        way = 3
-        print ('\n' + "Addition and subtraction are turned off, generation is stopped... ")
-    if (post[0] == 1) and (post[1] == 1):
-        way = rand(1, 2)
-    if (way == 1):
-        print (' ')
-        prim = print (a, '+', b)
-        prim = (str (a) + ' + ' + str (b))
-    elif (way == 2):
-        print (' ')
-        print (s,  '-', b)
-        prim = (str (s) + ' - ' + str (b))
 
-    while True:
-        if quiting == True:
-            break
-        ans = (input("User input: "))
-        try:
-            ans = int (ans)
-        except ValueError:
-            ans = str (ans.lower())
-        if (way == 1) and (ans == (a+b)):
-            print ("Correct!")
-            sot[4] += 1
-            break
-        elif (way == 2) and (ans == (s-b)):
-            print ("Correct!")
-            sot[4] += 1
-            break
-        elif (isint(ans)):
-            sot[5] += 1
-            print ("Incorrect, try again\n" + "\n" + prim)
+    if quit == True:
+        break
 
-        elif ans == ("exit"):
-            while True:
-                if saving[0] == True:
-                    print ("\n" + "Save settings before leaving?")
-                    wha1 = (input ("User input (y/n): "))
-                    wha1 = (wha1.lower())
-                    if (wha1 == ("yes")) or (wha1 == ('y')):
-                        saving[0] = False
-                        saving[1] = True
-                        blok = open ("TrNuSettings.txt", "w")
-                        blok.write (str(post[0]) + "\n" +
-                                    str(post[1]) + "\n" +
-                                    str(mol_1) + "\n" +
-                                    str (way))
-                        blok.close()
-                    elif (wha1 == ("n")) or (wha1 == ("no")):
-                        saving[0] = False
-                        saving[1] = True
-                    else:
-                        print ("Wrong input. Try again... ")
-                if saving [1] == True:
-                    print ("\n" + "Save statistics?")
-                    wha2 = (input ("User input (y/n): "))
-                    wha2 = (wha2.lower())
-                    if (wha2 == ("yes")) or (wha2 == ('y')):
-                        res = open ("TrNuStatistics.txt", "w")
-                        res.write (str(sot[4]) + "\n" +
-                                   str(sot[5]) + "\n" +
-                                   str(sot[6]))
-                        res.close()
-                        quiting = True
-                        break
-                    elif wha2 == ("no") or (wha2 == ("n")):
-                        quiting = True
-                        break        
-                    else:
-                        print ("Wrong input. Try again... ")
+    if solved == True:
+        operation = choose_operation()
+        data["problem"], data["answer"] = generate_problem(operation)
+        del operation
+        solved = False
 
-        elif ans == ("settings"):
-            mol_1 = settings (mol_1)
-            break
+    print ('\n' + data["problem"])
 
-        elif ans == ("skip"):
-            print ("We will count that. Next problem... ")
-            sot[6] += 1
-            break
-    
-        elif ans == ("turn on subtraction"):
-            if way == 3:
-                way = 2
-            post[1] = 1
-            break
+    user = input("User input: ")
 
-        elif ans == ("turn off subtraction"):
-            way = 1
-            post[1] = 0
-            break
+    try:
+        user = int(user)
+    except ValueError:
+        user = str (user.lower())
 
-        elif ans == ("turn on addition"):
-            if way == 3:
-                way = 1
-            post[0] = 1
-            break
+    if user == data["answer"]:
+        print ("Correct!")
+        data["correct"] += 1
+        solved = True
 
-        elif ans == ("turn off addition"):
-            way = 2
-            post[0] = 0
-            break
+    elif isinstance(user, int):
+        print ('\n' + "Incorrect, try again")
+        data["incorrect"] += 1
 
-        elif ans == ("delete progress"):
-            sot[4] = 0
-            sot[5] = 0
-            sot[6] = 0
-            print ("Your statistics were succesfully cleared... ")
-            break
-        
-        elif ans == ("status"): 
-            print ("Max sum: ", mol_1)
-            if post[0] == 1:
-                print ("Addition is turned on")
-            elif post[0] == 0:
-                print ("Addition is turned off")
-            if post[1] == 1:
-                print ("Subtraction is turned on")
-            elif post[1] == 0:
-                print ("Subtraction is turned off")
-            print ("Solved problems total: {0}; {1} of them correctly, {2} incorrectly and {3} were skipped".format(sot[4]+sot[5]+sot[6], sot[4], sot[5], sot[6]))
-            try:
-                print ("{0}% of all problems are solved correctly".format(round(sot[4]/(sot[4]+sot[5]+sot[6])*100, 2)))
-            except (ZeroDivisionError):
-                print ("Statistics are not available")
-            print ("\n" + "Back to the problem... ")
-            
+    elif user == "exit":
+        file_save()
+        quit = True
 
+    elif user == "settings":
+        data["max sum"] = script_settings()
+        print ("Back to math problem... ")
+
+    elif user == "skip":
+        print ("We will count that. Next problem... ")
+        if state_change == 1:
+            data["skipped"] += 1
+        solved = True
+        state_change = 0
+
+    elif user == "turn on addition":
+        state_change = 1
+        if data["addition"] == True:
+          print ('\n' + "Addition is already turned on")
         else:
-            print ("Unknown command, try again... ")
+          print ('\n' + "Addition is turned on now")
+          data["addition"] = True
+        print ("Back to math problem... ")
 
-input ("End of program, press Enter to exit... ")
+    elif user == "turn off addition":
+        state_change = 1
+        if data["addition"] == False:
+          print ('\n' + "Addition is already turned off")
+        else:
+          print ('\n' + "Addition is turned off now")
+          data["addition"] = False
+        print ("Back to math problem... ")
+
+    elif user == "turn on subtraction":
+        state_change = 1
+        if data["subtraction"] == True:
+          print ('\n' + "Subtraction is already turned on")
+        else:
+          print ('\n' + "Subtraction is turned on now")
+          data["subtraction"] = True
+        print ("Back to math problem... ")
+
+    elif user == "turn off subtraction":
+        if data["subtraction"] == False:
+          print ('\n' + "Subtraction is already turned off")
+        else:
+          print ('\n' + "Subtraction is turned off now")
+          data["subtraction"] = False
+        print ("Back to math problem... ")
+
+    elif user == "delete progress":
+        data["correct"] = 0
+        data["incorrect"] = 0
+        data["skipped"] = 0
+        print ('\n' + "Your statistics were succesfully cleared... ")
+
+    elif user == "status":
+        script_show_status()
+
+    elif user == "help":
+        print (' ')
+        script_help()
+
+    else:
+        print ('\n' + "Unknown command, try again... ")
+
+input ('\n' + "End of program, press Enter to exit... ")
