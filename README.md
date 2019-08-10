@@ -1,6 +1,6 @@
 # Train Nums
 
-**Train Nums** is a program that generates math problems for user, excepts answers and stores statistics. 
+**Train Nums** is a program that generates math problems for user, accepts answers and stores statistics. 
 
 User communicates with program through input. You can enter answer to math problem when prompted or **commands**: 
 
