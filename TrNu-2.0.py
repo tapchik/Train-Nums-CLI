@@ -35,10 +35,10 @@ def script_settings():
 	print('\n' + "Current max sum is: " + str(data["max sum"]))
 	while True:
 		try:
-			x = int (input("Enter new max sum: "))
-			return (abs(x))
+			x = int(input("Enter new max sum: "))
+			return abs(x)
 		except ValueError:
-			print ('\n' + "Number is required, try again... " + '\n')
+			print('\n' + "Number is required, try again... " + '\n')
 
 def script_show_status():
 	#displays settings and statistics
