@@ -5,7 +5,10 @@ import json
 #INITIALIZATION
 data = {"addition": True,
         "subtraction": False,
+        "multiplication": False,
+        "division": False,
         "max sum": 25,
+        "max factor": 10,
         "problem": "0 + 0",
         "answer": 0,
         "correct": 0,
@@ -20,40 +23,99 @@ def script_help():
     print('\n' + """You can enter listed commands when user input is prompted:
 
 "skip" - skip difficult problems;
-"settings" - change max sum;
+"settings" - change max sum and max factor;
 "status" - show settings and your statistics;
 "delete progress" - clear your statistics and start fresh;
-"turn on/off addition";
-"turn on/off subtraction";
+"operations" - which math operations to enable;
 "help" - show this list of commands again;
 "exit" - quit Train Nums. """)
 
 def script_settings():
 
-    print('\n' + "Current max sum is: " + str(data["max sum"]))
+    global data
+
+    print('\n' + "Current max sum is: " + str(data['max sum']))
     while True:
         try:
-            x = int(input("Enter new max sum: "))
-            return abs(x)
+            user = int(input("Enter new max sum: "))
+            data['max sum'] = user
+            break
         except ValueError:
             print('\n' + "Number is required, try again... " + '\n')
+
+    print('\n' + "Current max factor is: " + str(data['max factor']))
+    while True:
+        try:
+            user = int(input("Enter new max factor: "))
+            data['max factor'] = user
+            break
+        except ValueError:
+            print('\n' + "Number is required, try again... " + '\n')
+
+def script_operation():
+
+    global data
+    print('\n' + "Enter operations you want to enable, choose from +, -, * and /")
+
+    while True:
+
+        user = input("Enter operations: ")
+
+        if '+' in user:
+            data['addition'] = True
+        else:
+            data['addition'] = False
+
+        if '-' in user:
+            data['subtraction'] = True
+        else:
+            data['subtraction'] = False
+
+        if '*' in user:
+            data['multiplication'] = True
+        else:
+            data['multiplication'] = False
+
+        if '/' in user:
+            data['division'] = True
+        else:
+            data['division'] = False
+
+        if '+' not in user and '-' not in user and '*' not in user and '/' not in user:
+            print('\n' + "You should have at least one operation enabled")
+        else:
+            break
 
 def script_show_status():
     #displays settings and statistics
 
-    print('\n' + "Max sum" + '     : ' + str(data["max sum"]))
+    print('\n' + "Max sum    : " + str(data['max sum']))
+    print("Max factor : " + str(data['max factor']))
 
-    print("Addition", end='    : ')
+    print(' ')
+    print("Addition (+)", end='       : ')
     if data["addition"] == True:
         print("on")
     else:
         print("off")
 
-    print("Subtraction", end=' : ')
+    print("Subtraction (-)", end='    : ')
     if data["subtraction"] == True:
         print("on")
     else:
         print("off")
+
+    print("Multiplication (*)", end=' : ')
+    if data['multiplication'] == True:
+        print("on")
+    else:
+        print("off")
+    print("Division (/)", end='       : ')
+    if data['division'] == True:
+        print("on")
+    else:
+        print("off")
+
 
     total = data["correct"] + data["incorrect"] + data["skipped"]
 
@@ -73,11 +135,14 @@ def script_show_status():
 
 def file_read():
 
+    global data
+
     try:
         with open("TrNuSettings.json", "r") as file:
             data = json.load(file)
+            # TO-DO: check for mult and div
             if data["addition"] in [True, False] and data["subtraction"] in [True, False] and data["correct"] >= 0 and data["incorrect"] >= 0 and data["skipped"] >= 0 and data["max sum"] > 0:
-                return data
+                return True
             else:
                 raise KeyError()
 
@@ -86,27 +151,38 @@ def file_read():
         print("We love seeing new users! ")
         return False
 
-    except (KeyError, TypeError):
+    except TypeError:
         print('\n' + "Settings file must be currupted. Did you try to cheat? ")
         print("Program is set to default settings and your progress was nullified. ")
-        data = set_to_default()
+        set_to_default()
         return False
+    try:
+        data["multiplication"]
+        data["division"]
+        data["max factor"]
+    except KeyError:
+        data["multiplication"] = False
+        data["division"] = False
+        data["max factor"] = 10
+    return data
 
 def file_save():
     with open("TrNuSettings.json", "w") as file:
         json.dump(data, file, indent = 4)
 
 def set_to_default():
-
+    global data
     data = {"addition": True,
     	    "subtraction": False,
+            "multiplication": False,
+            "division": False,
     	    "max sum": 25,
+            "max factor": 10,
     	    "problem": "0 + 0",
     	    "answer": 0,
     	    "correct": 0,
     	    "incorrect": 0,
     	    "skipped": 0}
-    return data
 
 def choose_operation():
 
@@ -116,6 +192,10 @@ def choose_operation():
         options.append("+")
     if data["subtraction"] == True:
         options.append("-")
+    if data["multiplication"] == True:
+        options.append("*")
+    if data["division"] == True:
+        options.append("/")
 
     if options != []:
         return choice(options)
@@ -129,43 +209,46 @@ def generate_problem(operation):
     # 123     '+'      456  =  579
     #left, operation, right, answer
 
-    if operation == '+':
+    if operation == None:
+        problem = None
+        answer = None
+        return (problem, answer)
 
-        answer = randint(1, data["max sum"])
+    elif operation == '+':
+        answer = randint(1, data['max sum'])
         left = randint(1, answer)
         right = answer - left
 
-        problem += str(left)
-        problem += ' ' + operation + ' '
-        problem += str(right)
-
     elif operation == '-':
-
-        left = randint(1, data["max sum"])
+        left = randint(1, data['max sum'])
         right = randint(1, left)
         answer = left - right
 
-        problem += str(left)
-        problem += ' ' + operation + ' '
-        problem += str(right)
+    elif operation == '*':
+        left = randint(1, data['max factor'])
+        right = randint(1, data['max factor'])
+        answer = left * right
 
-    elif operation == None:
+    elif operation == '/':
+        right = randint(1, data['max factor'])
+        answer = randint(1, data['max factor'])
+        left = answer * right
 
-        problem = None
-        answer = None
+    problem += str(left)
+    problem += ' ' + operation + ' '
+    problem += str(right)
 
     return (problem, answer)
 
 #START OF PROGRAM
 
 print('\n' + "Start of program... ")
-data = file_read()
-if data == False:
-    solved = True
-    data = set_to_default()
-else:
+if file_read() == True:
     print("Reading from file... ")
     solved = False
+else:
+    set_to_default()
+    solved = True
 
 script_help()
 
@@ -177,14 +260,15 @@ while True:
     if solved == True:
         operation = choose_operation()
         data["problem"], data["answer"] = generate_problem(operation)
-        del operation
         solved = False
 
     if data["problem"] is not None:
         print('\n' + data["problem"])
     else:
-        print('\n' + "Generation is turned off. Choose an operation. ")
+        print('\n' + "Generation is turned off. Choose operations. ")
+        script_operation()
         solved = True
+        continue
 
     user = input("User input: ")
 
@@ -207,45 +291,17 @@ while True:
         quitting = True
 
     elif user == "settings":
-        data["max sum"] = script_settings()
-        print("Back to math problem... ")
+        script_settings()
+        print('\n' + "Back to math problem... ")
 
     elif user == "skip":
         print("We will count that. Next problem... ")
         data["skipped"] += 1
         solved = True
 
-    elif user == "turn on addition":
-        if data["addition"] == True:
-            print('\n' + "Addition is already turned on")
-        else:
-            print('\n' + "Addition is turned on now")
-            data["addition"] = True
-        print("Back to math problem... ")
-
-    elif user == "turn off addition":
-        if data["addition"] == False:
-            print('\n' + "Addition is already turned off")
-        else:
-            print('\n' + "Addition is turned off now")
-            data["addition"] = False
-        print("Back to math problem... ")
-
-    elif user == "turn on subtraction":
-        if data["subtraction"] == True:
-            print('\n' + "Subtraction is already turned on")
-        else:
-            print('\n' + "Subtraction is turned on now")
-            data["subtraction"] = True
-        print("Back to math problem... ")
-
-    elif user == "turn off subtraction":
-        if data["subtraction"] == False:
-            print('\n' + "Subtraction is already turned off")
-        else:
-            print('\n' + "Subtraction is turned off now")
-            data["subtraction"] = False
-        print("Back to math problem... ")
+    elif user == "operations":
+        script_operation()
+        print('\n' + "Back to math problem... ")
 
     elif user == "delete progress":
         data["correct"] = 0
@@ -255,10 +311,9 @@ while True:
 
     elif user == "status":
         script_show_status()
-        print('\n' + "Back to the math problem... ")
+        print('\n' + "Back to math problem... ")
 
     elif user == "help":
-        print(' ')
         script_help()
 
     else:
