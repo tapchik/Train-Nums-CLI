@@ -5,7 +5,7 @@ import json
 #INITIALIZATION
 data = {"addition": True,
         "subtraction": False,
-        "multiplication": True,
+        "multiplication": False,
         "division": False,
         "max sum": 25,
         "max factor": 10,
@@ -136,7 +136,7 @@ def script_show_status():
 def file_read():
 
     global data
-    
+
     try:
         with open("TrNuSettings.json", "r") as file:
             data = json.load(file)
@@ -174,7 +174,7 @@ def set_to_default():
     global data
     data = {"addition": True,
     	    "subtraction": False,
-            "multiplication": True,
+            "multiplication": False,
             "division": False,
     	    "max sum": 25,
             "max factor": 10,
