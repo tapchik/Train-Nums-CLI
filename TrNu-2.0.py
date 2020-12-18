@@ -3,17 +3,33 @@ from random import choice
 import json
 
 #INITIALIZATION
-data = {"addition": True,
-        "subtraction": False,
-        "multiplication": False,
-        "division": False,
-        "max sum": 25,
-        "max factor": 10,
-        "problem": "0 + 0",
-        "answer": 0,
-        "correct": 0,
-        "incorrect": 0,
-        "skipped": 0}
+
+class data:
+    addition = True
+    subtraction = False
+    multiplication = False
+    division = False
+    max_sum = 25
+    max_factor = 10
+    problem = '0 + 0'
+    answer = 0
+    correct = 0
+    incorrect = 0
+    skipped = 0
+
+temp = data
+
+data = {'addition': True,
+        'subtraction': False,
+        'multiplication': False,
+        'division': False,
+        'max sum': 25,
+        'max factor': 10,
+        'problem': '0 + 0',
+        'answer': 0,
+        'correct': 0,
+        'incorrect': 0,
+        'skipped': 0}
 solved = True
 quitting = False
 
@@ -94,13 +110,13 @@ def script_show_status():
 
     print(' ')
     print("Addition (+)", end='       : ')
-    if data["addition"] == True:
+    if data['addition'] == True:
         print("on")
     else:
         print("off")
 
     print("Subtraction (-)", end='    : ')
-    if data["subtraction"] == True:
+    if data['subtraction'] == True:
         print("on")
     else:
         print("off")
@@ -117,16 +133,16 @@ def script_show_status():
         print("off")
 
 
-    total = data["correct"] + data["incorrect"] + data["skipped"]
+    total = data['correct'] + data['incorrect'] + data['skipped']
 
     print(' ')
-    print("Correctly solved" + '      : ' + str(data["correct"]))
-    print("Mistakes were made" + '    : ' + str(data["incorrect"]))
-    print("Skipped problems" + '      : ' + str(data["skipped"]))
+    print("Correctly solved" + '      : ' + str(data['correct']))
+    print("Mistakes were made" + '    : ' + str(data['incorrect']))
+    print("Skipped problems" + '      : ' + str(data['skipped']))
     print("Solved problems total" + ' : ' + str(total))
 
     try:
-        print("{0}% of all problems are solved correctly".format(round(data["correct"]/total*100), 2))
+        print("{0}% of all problems are solved correctly".format(round(data['correct']/total*100), 2))
     except ZeroDivisionError:
         print("Further statistics are not available")
         print('\n' + "Back to the problem... ")
@@ -141,7 +157,7 @@ def file_read():
         with open("TrNuSettings.json", "r") as file:
             data = json.load(file)
             # TO-DO: check for mult and div
-            if data["addition"] in [True, False] and data["subtraction"] in [True, False] and data["correct"] >= 0 and data["incorrect"] >= 0 and data["skipped"] >= 0 and data["max sum"] > 0:
+            if data['addition'] in [True, False] and data['subtraction'] in [True, False] and data['correct'] >= 0 and data['incorrect'] >= 0 and data['skipped'] >= 0 and data['max sum'] > 0:
                 return True
             else:
                 raise KeyError()
@@ -157,45 +173,45 @@ def file_read():
         set_to_default()
         return False
     try:
-        data["multiplication"]
-        data["division"]
-        data["max factor"]
+        data['multiplication']
+        data['division']
+        data['max factor']
     except KeyError:
-        data["multiplication"] = False
-        data["division"] = False
-        data["max factor"] = 10
+        data['multiplication'] = False
+        data['division'] = False
+        data['max factor'] = 10
     return data
 
 def file_save():
-    with open("TrNuSettings.json", "w") as file:
+    with open("TrNuSettings.json", 'w') as file:
         json.dump(data, file, indent = 4)
 
 def set_to_default():
     global data
-    data = {"addition": True,
-    	    "subtraction": False,
-            "multiplication": False,
-            "division": False,
-    	    "max sum": 25,
-            "max factor": 10,
-    	    "problem": "0 + 0",
-    	    "answer": 0,
-    	    "correct": 0,
-    	    "incorrect": 0,
-    	    "skipped": 0}
+    data = {'addition': True,
+    	    'subtraction': False,
+            'multiplication': False,
+            'division': False,
+    	    'max sum': 25,
+            'max factor': 10,
+    	    'problem': '0 + 0',
+    	    'answer': 0,
+    	    'correct': 0,
+    	    'incorrect': 0,
+    	    'skipped': 0}
 
 def choose_operation():
 
     options = []
 
-    if data["addition"] == True:
-        options.append("+")
-    if data["subtraction"] == True:
-        options.append("-")
-    if data["multiplication"] == True:
-        options.append("*")
-    if data["division"] == True:
-        options.append("/")
+    if data['addition'] == True:
+        options.append('+')
+    if data['subtraction'] == True:
+        options.append('-')
+    if data['multiplication'] == True:
+        options.append('*')
+    if data['division'] == True:
+        options.append('/')
 
     if options != []:
         return choice(options)
@@ -259,11 +275,11 @@ while True:
 
     if solved == True:
         operation = choose_operation()
-        data["problem"], data["answer"] = generate_problem(operation)
+        data['problem'], data['answer'] = generate_problem(operation)
         solved = False
 
-    if data["problem"] is not None:
-        print('\n' + data["problem"])
+    if data['problem'] is not None:
+        print('\n' + data['problem'])
     else:
         print('\n' + "Generation is turned off. Choose operations. ")
         script_operation()
@@ -277,14 +293,14 @@ while True:
     else:
         user = user.lower()
 
-    if user == data["answer"]:
+    if user == data['answer']:
         print("Correct!")
         data["correct"] += 1
         solved = True
 
     elif isinstance(user, int):
         print('\n' + "Incorrect, try again")
-        data["incorrect"] += 1
+        data['incorrect'] += 1
 
     elif user in ["exit", "quit"]:
         file_save()
@@ -296,7 +312,7 @@ while True:
 
     elif user == "skip":
         print("We will count that. Next problem... ")
-        data["skipped"] += 1
+        data['skipped'] += 1
         solved = True
 
     elif user == "operations":
@@ -304,9 +320,9 @@ while True:
         print('\n' + "Back to math problem... ")
 
     elif user == "delete progress":
-        data["correct"] = 0
-        data["incorrect"] = 0
-        data["skipped"] = 0
+        data['correct'] = 0
+        data['incorrect'] = 0
+        data['skipped'] = 0
         print('\n' + "Your statistics were succesfully cleared... ")
 
     elif user == "status":
