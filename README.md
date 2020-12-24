@@ -5,11 +5,10 @@
 User communicates with program through input. You can enter answer to math problem when prompted or **commands**:
 
 - "skip" - skip difficult problems;
-- "settings" - change max sum;
+- "settings" - change max sum and max factor;
 - "status" - show settings and your statistics;
 - "delete progress" - clear your statistics and start fresh;
-- "turn on/off addition";
-- "turn on/off subtraction";
+- "operations" - choose which math operations to enable;
 - "help" - show this list of commands again;
 - "exit" - quit Train Nums.
 

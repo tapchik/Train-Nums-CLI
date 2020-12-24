@@ -42,7 +42,7 @@ def script_help():
 "settings" - change max sum and max factor;
 "status" - show settings and your statistics;
 "delete progress" - clear your statistics and start fresh;
-"operations" - which math operations to enable;
+"operations" - choose which math operations to enable;
 "help" - show this list of commands again;
 "exit" - quit Train Nums. """)
 
