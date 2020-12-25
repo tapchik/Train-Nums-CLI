@@ -179,7 +179,7 @@ def file_read():
         data['multiplication'] = False
         data['division'] = False
         data['max factor'] = 10
-    return data
+    return True
 
 def file_save():
     with open("TrNuSettings.json", 'w') as file:
