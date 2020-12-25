@@ -145,7 +145,6 @@ def script_show_status():
         print("{0}% of all problems are solved correctly".format(round(data['correct']/total*100), 2))
     except ZeroDivisionError:
         print("Further statistics are not available")
-        print('\n' + "Back to the problem... ")
 
 #FUNCTIONS
 
@@ -158,7 +157,7 @@ def file_read():
             data = json.load(file)
             # TO-DO: check for mult and div
             if data['addition'] in [True, False] and data['subtraction'] in [True, False] and data['correct'] >= 0 and data['incorrect'] >= 0 and data['skipped'] >= 0 and data['max sum'] > 0:
-                return True
+                pass
             else:
                 raise KeyError()
 
